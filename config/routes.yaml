@@ -1,3 +1,26 @@
 #index:
 #    path: /
 #    controller: App\Controller\DefaultController::index
+register:
+  path: /register
+  controller: App\Controller\AuthController::register
+  methods: POST
+
+api_login_check:
+  path: /api/login_check
+  controller: App\Controller\AuthController::getTokenUser
+
+test:
+  path: /api/test
+  controller: App\Controller\ApiController::test
+
+all_pizza:
+  path: /pizzas
+  controller: App\Controller\PizzaController::getAllPizzas
+  methods: GET
+
+api_get_order:
+  path: /api/orders/{email}
+  controller: App\Controller\OrderController::getOrders
+  methods:    GET|HEAD
+
