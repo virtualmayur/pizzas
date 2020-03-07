@@ -10,17 +10,17 @@ api_login_check:
   path: /api/login_check
   controller: App\Controller\AuthController::getTokenUser
 
-test:
-  path: /api/test
-  controller: App\Controller\ApiController::test
+api_get_order:
+  path: /api/orders/{email}
+  controller: App\Controller\OrderController::getOrders
+  methods: GET|HEAD
+
+api_add_order:
+  path: /api/order_add
+  controller: App\Controller\OrderController::addOrder
+  methods: POST
 
 all_pizza:
   path: /pizzas
   controller: App\Controller\PizzaController::getAllPizzas
-  methods: GET
-
-api_get_order:
-  path: /api/orders/{email}
-  controller: App\Controller\OrderController::getOrders
-  methods:    GET|HEAD
-
+  methods: GET|HEAD

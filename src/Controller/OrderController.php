@@ -3,27 +3,33 @@
 namespace App\Controller;
 
 use App\Entity\Order;
-use App\Entity\OrderDetail;
+use App\Services\UserService;
 use App\Repository\OrderRepository;
 use App\Repository\PizzaRepository;
-use App\Services\PizzaService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * Class OrderController
+ * @package App\Controller
+ */
 class OrderController extends ApiController
 {
     private $orderService;
     private $orderRepository;
     private $pizzaRepository;
     private $entityManager;
+    private $orderEntity;
 
     public function __construct(
-        PizzaService $orderService,
+        UserService $orderService,
         OrderRepository $orderRepository,
-        PizzaRepository $pizzaRepository,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        PizzaRepository $pizzaRepository
     )
     {
+        $this->orderEntity = new Order();
         $this->orderService = $orderService;
         $this->orderRepository = $orderRepository;
         $this->pizzaRepository = $pizzaRepository;
@@ -44,11 +50,17 @@ class OrderController extends ApiController
         );
     }
 
+    /**
+     * Add Order
+     *
+     * @param Request $request
+     *
+     * @return JsonResponse
+     */
     public function addOrder(Request $request)
     {
         try{
             $request = $this->transformJsonBody($request);
-
             if (
                 !$request ||
                 !$request->get('email') ||
@@ -60,32 +72,19 @@ class OrderController extends ApiController
                 throw new \Exception();
             }
 
-            $order = new Order();
-            $order->setEmail($request->get('email'))
-                ->setContact($request->get('contact'))
-                ->setAddress($request->get('address'))
-                ->setPincode($request->get('pincode'))
-                ->setCreatedAt(new \DateTime('new'));
-            $entityManager->persist($order);
-            $entityManager->flush();
-            $orderDetails = $request->get('orderDetails');
-            $pizzaDetails = $this->pizzaRepository->find($orderDetails[0]['id']);
-            $orderDetail = new OrderDetail();
-            foreach ($orderDetail as $orderD)
-            $orderDetail->setPizza($pizzaDetails->get)
-            $orderDetails =
-            $data = [
-                'status' => 200,
-                'success' => "Post added successfully",
-            ];
-            return $this->response($data);
+            $result = $this->orderService->insertOrder(
+                $request,
+                $this->entityManager,
+                $this->pizzaRepository
+            );
 
+            if ("success" === $result['status']) {
+                return $this->respondWithSuccess($result['message']);
+            }
+
+            return $this->respondWithErrors($result['message']);
         }catch (\Exception $e){
-            $data = [
-                'status' => 422,
-                'errors' => "Data no valid",
-            ];
-            return $this->response($data, 422);
+            return $this->respondValidationError("Invalid data passed");
         }
     }
 }

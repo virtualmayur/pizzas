@@ -2,15 +2,15 @@
 
 namespace App\Controller;
 
-
-use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\HttpFoundation\{JsonResponse, Request};
 
+/**
+ * Class ApiController
+ * @package App\Controller
+ */
 class ApiController extends AbstractController
 {
-
     /**
      * @var integer HTTP status code - 200 (OK) by default
      */
@@ -70,7 +70,6 @@ class ApiController extends AbstractController
         return new JsonResponse($data, $this->getStatusCode(), $headers);
     }
 
-
     /**
      * Sets an error message and returns a JSON response
      *
@@ -126,6 +125,18 @@ class ApiController extends AbstractController
     }
 
     /**
+     * Returns a 404 Not Found
+     *
+     * @param string $message
+     *
+     * @return JsonResponse
+     */
+    public function respondAlreadyExist($message = 'Already exist!')
+    {
+        return $this->setStatusCode(409)->respondWithErrors($message);
+    }
+
+    /**
      * Returns a 201 Created
      *
      * @param array $data
@@ -137,10 +148,11 @@ class ApiController extends AbstractController
         return $this->setStatusCode(201)->response($data);
     }
 
-    // this method allows us to accept JSON payloads in POST requests
-    // since Symfony 4 doesn’t handle that automatically:
-
-    protected function transformJsonBody(\Symfony\Component\HttpFoundation\Request $request)
+    /**
+     * @param Request $request
+     * @return Request
+     */
+    protected function transformJsonBody(Request $request)
     {
         $data = json_decode($request->getContent(), true);
 
